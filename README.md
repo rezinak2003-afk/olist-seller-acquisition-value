@@ -135,10 +135,11 @@ The linked-only activation rates are also reweighted by a logistic linkage-prope
 
 ## Reproducibility and CI
 
-* Install the dependency ranges with `pip install -r requirements.txt`; the direct dependency input is `requirements.in`.
-* `requirements.lock` is an **offline Python 3.13 environment snapshot**, not a complete cross-platform lock. I attempted to resolve a canonical lock with `uv pip compile`, but this environment could not reach PyPI (DNS/network unavailable) and the snapshot does not include the `psycopg\[binary]` package. Do not use this snapshot as a full install lock. On an internet-connected machine, generate the canonical lock with `uv pip compile requirements.in --python-version 3.12 --generate-hashes --output-file requirements.lock`, then review and commit the resolved file.
-* `.github/workflows/ci.yml` provisions PostgreSQL 16 and tests pandas 2.2 and 3.0 against the committed synthetic fixture, executes the Python pipeline and SQL runner, then requires every SQL/Python reconciliation row to pass. The workflow is configured but has not yet run on GitHub.
-* `.github/workflows/pages.yml` publishes only `dashboard/` to GitHub Pages. In the repository, open **Settings → Pages → Build and deployment → Source**, select **GitHub Actions**, then push the workflow to `main` (or run it from the Actions tab). The resulting URL is shown in the deployment job. See the [official Pages workflow instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+* Install dependencies with `pip install -r requirements.txt`; direct dependency input is `requirements.in`.
+* `requirements.lock` remains an incomplete offline environment snapshot, not a canonical cross-platform lock. Generate a complete lock on an internet-connected machine before claiming reproducible locked installation.
+* Local tests: **19 passed, 1 skipped**. The skipped local test requires PostgreSQL.
+* GitHub Actions run `5995bef` passed PostgreSQL 16 integration and SQL/Python reconciliation across pandas 2.2 and 3.0.
+* The GitHub Pages deployment workflow passed. The live dashboard is available at https://rezinak2003-afk.github.io/olist-seller-acquisition-value/.
 
 ## Data sources and licence
 
@@ -185,11 +186,16 @@ The runner recreates `raw` and `mart` from the single DDL file, loads the four s
 
 ## Excel workbook
 
-Open `excel/olist\_validation\_workbook.xlsx` in Excel Desktop. `Seller\_Value` is an Excel Table (`tblSeller`); dashboard KPIs use table formulas and the Origin/Definition selectors. The `Reconciliation` tab compares Python, workbook and SQL values. The `PivotTable\_Instructions` tab documents the remaining manual PivotTable creation step: open the workbook in Excel, insert a PivotTable from `tblSeller` and save. The workbook uses automatic full recalculation on open; cached values are refreshed in the build environment where supported.
+* `excel/olist_validation_workbook.xlsx` contains the seller validation workbook and dashboard.
+* `excel/Origin_Pivot.xlsx` contains the manually created native Excel PivotTable.
+* The PivotTable was created in Excel Desktop and saved separately.
 
 ## Power BI report
 
-Use `powerbi/POWER\_BI\_BUILD\_GUIDE.md`, `powerbi/PowerQuery\_Load\_Outputs.pq` and `powerbi/DAX\_MEASURES.dax`. The guide specifies five pages, `DimOrigin` and `DimDate`, relationships, a definition selector, Wilson intervals, and n<20 warnings. The final `.pbix`, five report-page screenshots and PDF export must be authored and validated in Power BI Desktop on Windows; they are not included because Desktop was unavailable here. See `reports/USER\_FINISHING\_STEPS.md` for the remaining manual checklist.
+* Editable five-page Power BI Desktop report: `powerbi/olist_seller_acquisition_value.pbix`.
+* Five-page PDF export: `reports/olist_seller_acquisition_value.pdf`.
+* Build references: `powerbi/POWER_BI_BUILD_GUIDE.md`, `powerbi/PowerQuery_Load_Outputs.pq` and `powerbi/DAX_MEASURES.dax`.
+* The PBIX and PDF are included in this repository. Individual PNG screenshots of all five pages have not yet been committed.
 
 ## Important limitations
 
