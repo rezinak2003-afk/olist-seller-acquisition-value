@@ -1,0 +1,2 @@
+mql_id,seller_id,first_contact_date,won_date,close_days_raw,exception_type
+b91cf8812365f50ff4bda4bcd6206b05,5e063e85d44b0f5c3e6ec3131103a57e,2018-03-08,2018-03-06 19:38:55,-2,won_date_before_first_contact

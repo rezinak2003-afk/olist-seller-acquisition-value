@@ -1,0 +1,4 @@
+min_orders_per_day,data_end_exclusive,mature_90d_deals,rule
+10,2018-08-30,665,day after latest calendar date with at least threshold order purchases
+50,2018-08-28,656,day after latest calendar date with at least threshold order purchases
+100,2018-08-24,654,day after latest calendar date with at least threshold order purchases

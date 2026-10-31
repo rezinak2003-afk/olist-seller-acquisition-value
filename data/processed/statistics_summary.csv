@@ -1,0 +1,5 @@
+metric,n,successes,estimate,ci_95_low,ci_95_high,method
+purchase_window_delivered_activation,340,282.0,0.8294117647058824,0.7858031755686096,0.865659858494456,Wilson score interval; 95% confidence
+delivery_completed_within_90d_activation,340,258.0,0.7588235294117647,0.7106220124046849,0.801241800073438,Wilson score interval; 95% confidence
+mean_delivered_gmv_90d_brl,340,,970.8251764705882,600.631968382353,1506.0975154411765,"Percentile bootstrap mean; 5,000 resamples; seed=42"
+median_delivered_gmv_90d_brl,340,,215.7,178.45,286.49,"Percentile bootstrap median; 5,000 resamples; seed=42"

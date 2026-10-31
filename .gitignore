@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+env/
+.DS_Store
+.env
+# Keep raw source data out of Git; the project README documents how to obtain it.
+data/raw/*
+!data/raw/.gitkeep
+# Derived project outputs are intentionally tracked for reproducible review and Power BI import.
+data/reference/*
+!data/reference/.gitkeep
+*.zip
+
+data/supplementary/*
+!data/supplementary/.gitkeep

@@ -1,0 +1,67 @@
+Project 2 execution record
+Execution date: 2026-10-31
+Project: Olist Seller Acquisition Funnel -> 90-Day Marketplace Value
+
+INPUTS AND HANDLING
+- Olist Marketing Funnel: 8,000 qualified-lead rows and 842 closed-deal rows.
+- Brazilian e-commerce source snapshot: 99,441 order rows and 112,650 order-item rows; supplementary reviews and payments files were present for checks.
+- Source timestamps were parsed year-first. IDs were trimmed and blank IDs normalized to missing.
+- Raw CSVs are excluded from the distributable project package and ignored by Git. Users must obtain the source datasets separately and place them in data/raw/ and data/reference/ as documented.
+- Kaggle source pages identify both datasets as CC BY-NC-SA 4.0. The repository MIT licence applies to code only, not to the data.
+
+DATA AND PIPELINE CORRECTIONS
+- Maturity is defined by the exclusive cutoff `data_end`: the day after the latest calendar date with at least 50 order purchases.
+- Last qualifying day: 2018-08-27. `data_end`: 2018-08-28 00:00:00 (exclusive).
+- 83 raw purchases fall on or after `data_end`; no deal flagged mature has its 90-day window ending after `data_end` (0 leakage).
+- Sensitivity: 10 orders/day -> 2018-08-30, 665 mature deals; 50/day -> 2018-08-28, 656; 100/day -> 2018-08-24, 654.
+- The seller mart reports separate purchase-window delivered activation and strict delivery-within-90-day activation.
+- Unlinked seller marketplace outcomes remain NULL / unobserved, not zero. The linkage-propensity model and stabilized, 99th-percentile-capped IPW are sensitivity diagnostics, not a recovery of unlinked outcomes.
+
+VERIFIED PYTHON RESULTS
+- Qualified leads: 8,000; closed deals: 842; lead-to-deal conversion: 10.53%.
+- Mature 90-day deals: 656; immature deals excluded: 186.
+- Mature linked deals: 340/656 (51.83%); mature unlinked deals: 316/656 (48.17%).
+- Purchase-window delivered activation: 282/340 (82.94%); Wilson 95% CI 78.58%-86.57%.
+- Conservative all-mature lower bound: 282/656 (42.99%); this is not an estimate of true activation among unlinked sellers.
+- Strict delivery-within-90-day activation: 258/340 (75.88%); Wilson 95% CI 71.06%-80.12%.
+- Delivered item-price GMV: R$330,080.56; strict within-90-day delivered GMV is separately reported in the output tables.
+- Paid search vs organic search purchase-window activation: 79/87 (90.80%) vs 80/103 (77.67%); Newcombe difference +13.13pp (95% CI +2.59 to +23.14pp); Fisher p=0.0177; all-pairs Holm-adjusted p=0.1773.
+- The paid/organic result is observational and does not establish incremental lift. Do not reallocate budget from this comparison alone.
+- Top 10 linked mature sellers account for 48.43% of delivered item-price GMV; 58 sellers (17.06%) have zero GMV; Gini=0.7935.
+- All-status item-price GMV is R$336,683.90 vs delivered-status R$330,080.56, a R$6,603.34 gap.
+- Of 98,665 comparable payment orders, 98,416 (99.75%) reconcile to item price plus freight within R$1; 98,284 (99.61%) reconcile within R$0.01.
+
+DATA QUALITY EXCEPTIONS
+- Delivered orders without customer-delivery date: 8.
+- Non-delivered orders with a customer-delivery date: 6.
+- Negative close days: 1 (retained in exception log and excluded from close-duration summary).
+- The 50/day maturity leakage validation is zero; all key source identifiers and item composite keys pass uniqueness checks in the current snapshot.
+
+DELIVERABLES AND TESTING
+- Python pipeline executed from the supplied raw snapshot; CSV marts, inference, linkage, quality and business-analysis outputs regenerated.
+- Local test suite: 16 passed, 1 skipped. The end-to-end pipeline fixture test passed; the skipped integration check requires DATABASE_URL/PostgreSQL.
+- Notebook `notebooks/olist_seller_acquisition_analysis.ipynb` re-executed successfully with rendered tables and plots.
+- Static charts regenerated, including Wilson forest plot with n<20 groups labelled insufficient, cumulative activation and Lorenz curve.
+- HTML dashboard regenerated. Origin selection, activation definition and minimum-n controls recompute KPIs in JavaScript; n<20 groups remain suppressed.
+- Excel workbook regenerated with tblSeller, formulas, dropdowns, reconciliation sheet, 11-origin summary and two charts. LibreOffice populated cached KPI values and no formula-error cells were found. A one-cell edit test changed the activation KPI from 282 to 281. A native Excel PivotTable still needs to be inserted in Excel Desktop.
+- PostgreSQL 16 schema, marts, assertions and row-level parity runner are implemented; they were not executed locally because no PostgreSQL server or Docker is available. CI provisions PostgreSQL 16 and runs the pipeline and reconciliation, but this workflow has not yet been run from this offline session.
+- Power Query, DAX, date/origin dimensions, Wilson CI measures and five-page Power BI build guide are included. Power BI Desktop is unavailable here; no native PBIX, five screenshots or PDF export is claimed.
+- `requirements.lock` is a pinned snapshot of the locally installed Python 3.13 dependency closure. pip-tools and network access were unavailable; regenerate a canonical lock with pip-compile online. The PostgreSQL psycopg binary dependency is declared in requirements.txt and is resolved in CI, but is not present in this local snapshot.
+
+LIMITATIONS
+- Seller-ID crosswalk is incomplete: 316/656 mature deals are unlinked. Their marketplace outcomes remain unknown.
+- No channel-spend data is available, so CAC, ROI, payback and incremental lift cannot be calculated.
+- Acquisition origin is observational and is not randomized.
+- Seller `won_date` is a funnel close date, not a verified seller registration/go-live date.
+- GMV is order-item price in BRL; it is not seller profit or Olist-recognized revenue.
+- Both data sources are CC BY-NC-SA 4.0; attribution and non-commercial/share-alike obligations must be observed. Do not redistribute raw CSVs or use the dataset commercially without checking the licence and securing any necessary permission.
+
+
+FINAL HANDOFF CHECKS — 2026-10-31
+- Re-ran the full Python pipeline from the supplied raw snapshot with workbook generation disabled to preserve the existing workbook; refreshed all data/processed outputs.
+- Rebuilt all static charts, the interactive HTML dashboard and the README generated-results block from the refreshed CSV outputs.
+- Browser QA loaded the HTML directly in headless Chromium (sandbox URL navigation is restricted). Origin multi-select changed the linked denominator from 317 to 87 for paid search; the strict definition changed the activation count from 79 to 73; setting min-n to 200 suppressed the group. No JavaScript console errors were recorded.
+- Saved `reports/charts/interactive_dashboard_preview.png`.
+- Added `.github/workflows/pages.yml` using the current Pages Actions release lines; updated checkout/setup-python actions in CI. The first Pages deployment and PostgreSQL workflow run still require a GitHub push and repository Pages settings.
+- Attempted `uv pip compile` for a canonical dependency lock; resolution failed because this environment could not resolve/connect to PyPI. Existing `requirements.lock` is therefore left explicitly labelled as an incomplete offline snapshot.
+- Local pytest: 16 passed, 1 skipped. Integration-marked tests: 1 passed, 1 skipped (PostgreSQL check skipped because DATABASE_URL is unavailable).

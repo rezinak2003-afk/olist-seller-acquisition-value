@@ -1,0 +1,161 @@
+-- Dimension tables (create as calculated tables)
+DimOrigin =
+DISTINCT (
+    UNION (
+        SELECTCOLUMNS ( Acquisition_Funnel, "origin", Acquisition_Funnel[origin] ),
+        SELECTCOLUMNS ( Seller_90d_Value, "origin", Seller_90d_Value[origin] )
+    )
+)
+
+DimDate =
+VAR MinDate = MINX ( Seller_90d_Value, Seller_90d_Value[won_date_date] )
+VAR MaxDate = MAXX ( Seller_90d_Value, Seller_90d_Value[won_date_date] )
+RETURN
+    CALENDAR ( MinDate, MaxDate )
+
+Activation_Definition =
+DATATABLE (
+    "definition", STRING,
+    { { "Purchase-window" }, { "Strict" } }
+)
+
+-- Acquisition funnel
+Qualified Leads = SUM ( Acquisition_Funnel[qualified_leads] )
+Closed Leads = SUM ( Acquisition_Funnel[closed_leads] )
+Not Closed Leads = SUM ( Acquisition_Funnel[not_closed_leads] )
+Lead to Deal Conversion % = DIVIDE ( [Closed Leads], [Qualified Leads] )
+
+-- Cohort and linkage
+Mature Seller Deals =
+CALCULATE ( COUNTROWS ( Seller_90d_Value ), Seller_90d_Value[mature_90d] = TRUE () )
+
+Linked Mature Seller Deals =
+CALCULATE (
+    COUNTROWS ( Seller_90d_Value ),
+    Seller_90d_Value[mature_90d] = TRUE (),
+    Seller_90d_Value[seller_linked_to_order_items] = TRUE ()
+)
+
+Unlinked Mature Seller Deals = [Mature Seller Deals] - [Linked Mature Seller Deals]
+Marketplace Linkage % = DIVIDE ( [Linked Mature Seller Deals], [Mature Seller Deals] )
+
+-- The disconnected definition selector chooses the outcome and GMV basis.
+Selected Activation Definition = SELECTEDVALUE ( Activation_Definition[definition], "Purchase-window" )
+
+Selected Activated Sellers =
+VAR DefinitionName = [Selected Activation Definition]
+RETURN
+    SWITCH (
+        DefinitionName,
+        "Strict",
+            CALCULATE (
+                COUNTROWS ( Seller_90d_Value ),
+                Seller_90d_Value[mature_90d] = TRUE (),
+                Seller_90d_Value[seller_linked_to_order_items] = TRUE (),
+                Seller_90d_Value[activated_delivered_within_90d] = TRUE ()
+            ),
+        CALCULATE (
+            COUNTROWS ( Seller_90d_Value ),
+            Seller_90d_Value[mature_90d] = TRUE (),
+            Seller_90d_Value[seller_linked_to_order_items] = TRUE (),
+            Seller_90d_Value[activated_90d] = TRUE ()
+        )
+    )
+
+Selected Activation % = DIVIDE ( [Selected Activated Sellers], [Linked Mature Seller Deals] )
+
+-- Wilson 95% interval. These measures respect current origin/date/lead filters.
+Activation Wilson CI Lower =
+VAR N = [Linked Mature Seller Deals]
+VAR X = [Selected Activated Sellers]
+VAR Z = 1.95996398454005
+VAR P = DIVIDE ( X, N )
+VAR Denom = 1 + DIVIDE ( Z * Z, N )
+VAR Centre = DIVIDE ( P + DIVIDE ( Z * Z, 2 * N ), Denom )
+VAR HalfWidth = DIVIDE ( Z * SQRT ( DIVIDE ( P * ( 1 - P ) + DIVIDE ( Z * Z, 4 * N ), N ) ), Denom )
+RETURN IF ( N > 0, MAX ( 0, Centre - HalfWidth ), BLANK () )
+
+Activation Wilson CI Upper =
+VAR N = [Linked Mature Seller Deals]
+VAR X = [Selected Activated Sellers]
+VAR Z = 1.95996398454005
+VAR P = DIVIDE ( X, N )
+VAR Denom = 1 + DIVIDE ( Z * Z, N )
+VAR Centre = DIVIDE ( P + DIVIDE ( Z * Z, 2 * N ), Denom )
+VAR HalfWidth = DIVIDE ( Z * SQRT ( DIVIDE ( P * ( 1 - P ) + DIVIDE ( Z * Z, 4 * N ), N ) ), Denom )
+RETURN IF ( N > 0, MIN ( 1, Centre + HalfWidth ), BLANK () )
+
+Activation Sample Size = [Linked Mature Seller Deals]
+Activation Sample Flag = IF ( [Activation Sample Size] < 20, "Insufficient data (n<20)", "Eligible (n>=20)" )
+
+-- Delivery-window-specific counts and GMV remain available as fixed reference measures.
+Purchase Window Activated Sellers =
+CALCULATE (
+    COUNTROWS ( Seller_90d_Value ),
+    Seller_90d_Value[mature_90d] = TRUE (),
+    Seller_90d_Value[seller_linked_to_order_items] = TRUE (),
+    Seller_90d_Value[activated_90d] = TRUE ()
+)
+
+Strict Activated Sellers =
+CALCULATE (
+    COUNTROWS ( Seller_90d_Value ),
+    Seller_90d_Value[mature_90d] = TRUE (),
+    Seller_90d_Value[seller_linked_to_order_items] = TRUE (),
+    Seller_90d_Value[activated_delivered_within_90d] = TRUE ()
+)
+
+Purchase Window Activation % = DIVIDE ( [Purchase Window Activated Sellers], [Linked Mature Seller Deals] )
+Strict Activation % = DIVIDE ( [Strict Activated Sellers], [Linked Mature Seller Deals] )
+
+Selected Delivered Item Price GMV (BRL) =
+VAR DefinitionName = [Selected Activation Definition]
+RETURN
+    SWITCH (
+        DefinitionName,
+        "Strict",
+            CALCULATE (
+                SUM ( Seller_90d_Value[gmv_90d_delivered_within_90d] ),
+                Seller_90d_Value[mature_90d] = TRUE (),
+                Seller_90d_Value[seller_linked_to_order_items] = TRUE ()
+            ),
+        CALCULATE (
+            SUM ( Seller_90d_Value[gmv_90d_delivered_only] ),
+            Seller_90d_Value[mature_90d] = TRUE (),
+            Seller_90d_Value[seller_linked_to_order_items] = TRUE ()
+        )
+    )
+
+Median Delivered Item Price GMV (BRL) =
+VAR DefinitionName = [Selected Activation Definition]
+RETURN
+    IF (
+        DefinitionName = "Strict",
+        CALCULATE ( MEDIAN ( Seller_90d_Value[gmv_90d_delivered_within_90d] ), Seller_90d_Value[mature_90d] = TRUE (), Seller_90d_Value[seller_linked_to_order_items] = TRUE () ),
+        CALCULATE ( MEDIAN ( Seller_90d_Value[gmv_90d_delivered_only] ), Seller_90d_Value[mature_90d] = TRUE (), Seller_90d_Value[seller_linked_to_order_items] = TRUE () )
+    )
+
+Mean Delivered Item Price GMV (BRL) =
+VAR DefinitionName = [Selected Activation Definition]
+RETURN
+    IF (
+        DefinitionName = "Strict",
+        CALCULATE ( AVERAGE ( Seller_90d_Value[gmv_90d_delivered_within_90d] ), Seller_90d_Value[mature_90d] = TRUE (), Seller_90d_Value[seller_linked_to_order_items] = TRUE () ),
+        CALCULATE ( AVERAGE ( Seller_90d_Value[gmv_90d_delivered_only] ), Seller_90d_Value[mature_90d] = TRUE (), Seller_90d_Value[seller_linked_to_order_items] = TRUE () )
+    )
+
+P90 Delivered Item Price GMV (BRL) =
+VAR DefinitionName = [Selected Activation Definition]
+VAR Eligible = FILTER ( Seller_90d_Value, Seller_90d_Value[mature_90d] = TRUE () && Seller_90d_Value[seller_linked_to_order_items] = TRUE () )
+RETURN
+    IF (
+        DefinitionName = "Strict",
+        PERCENTILEX.INC ( Eligible, Seller_90d_Value[gmv_90d_delivered_within_90d], 0.9 ),
+        PERCENTILEX.INC ( Eligible, Seller_90d_Value[gmv_90d_delivered_only], 0.9 )
+    )
+
+Immature Seller Deals = CALCULATE ( COUNTROWS ( Seller_90d_Value ), Seller_90d_Value[mature_90d] = FALSE () )
+Mature Seller Linkage Gap % = DIVIDE ( [Unlinked Mature Seller Deals], [Mature Seller Deals] )
+
+-- The data_end column is a cohort boundary, not an order-date slicer. Use the
+-- validation_summary table to display the single run-level exclusive cutoff.

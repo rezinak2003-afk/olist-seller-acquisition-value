@@ -1,0 +1,33 @@
+check,value,detail
+lead_mql_id_unique,True,duplicate keys=0
+deal_mql_id_unique,True,duplicate keys=0
+closed_deal_seller_id_unique,True,duplicate seller IDs=0
+order_id_unique,True,duplicate keys=0
+order_item_composite_key_unique,True,"Duplicate (order_id, order_item_id) rows"
+deals_with_matching_lead_pct,100.0,Share of deal rows with matching qualified-lead record
+order_items_with_matching_order_pct,100.0,Share of order-item rows with matching order record
+max_order_purchase_timestamp,2018-10-17 17:30:18,Absolute latest purchase timestamp; includes sparse tail
+last_qualifying_purchase_day,2018-08-27 00:00:00,Last day with at least 50 orders
+data_end,2018-08-28 00:00:00,Exclusive maturity boundary: qualifying day + 1 calendar day
+min_daily_orders_rule,50,Minimum order count on a calendar day to support maturity
+orders_outside_data_end,83,Raw order records with purchase timestamp >= exclusive data_end
+mature_windows_ending_after_data_end,0,Must equal zero
+unparsed_lead_contact_dates,0,Source date strings failing parsing
+unparsed_deal_won_dates,0,Source dates failing parsing
+unparsed_order_purchase_timestamps,0,Source timestamps failing parsing
+delivered_orders_without_delivery_date,8,Delivered status but no customer-delivery timestamp
+non_delivered_orders_with_delivery_date,6,Non-delivered status but customer-delivery timestamp exists
+deals_without_seller_id,0,Excluded from seller outcomes; never assigned zero
+closed_deal_sellers_found_in_order_items_count,380,Closed-deal seller IDs present in any order-item row
+closed_deal_sellers_found_in_order_items_pct,45.13,Cross-dataset linkage rate; unmatched sellers are unobserved
+mature_seller_deals,656,Deals with complete 90-day purchase observation window under 50/day cutoff
+mature_seller_deals_linked_to_order_items_count,340,Mature deals with seller ID appearing in order_items
+mature_seller_linkage_rate_pct,51.83,Denominator is all mature seller deals
+observed_activated_linked_mature_sellers,282,Observed successes; unlinked outcomes excluded
+activation_lower_bound_all_mature_pct,42.99,"Conservative lower bound treating every unlinked mature seller as not yet observed, not as a true zero"
+immature_seller_deals_excluded,186,"Excluded from mature seller outcomes, not treated as zero"
+negative_close_days,1,Won date precedes first contact date
+invalid_or_negative_close_days,1,Missing dates or won date preceding first contact date
+seller_value_mql_id_unique,True,Seller mart grain is one row per closed deal/MQL
+negative_item_price_rows,0,Rows requiring review; retained unless source definition indicates otherwise
+null_item_price_rows,0,Null item-price rows; zero-filled only for aggregate summation
