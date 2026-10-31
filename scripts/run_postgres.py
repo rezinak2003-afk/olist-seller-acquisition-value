@@ -25,8 +25,38 @@ def query_frame(conn, sql: str) -> pd.DataFrame:
     return pd.DataFrame(cur.fetchall(), columns=[x.name for x in cur.description])
 
 
+def _bool_value(value) -> bool:
+    """Coerce one CSV/PostgreSQL boolean value consistently across pandas versions.
+
+    CSV exports may represent booleans as bools, 1/0, 1.0/0.0, or strings;
+    pandas may also return NaN/None for nullable fields. PostgreSQL drivers
+    usually return native bools. Handle scalar values explicitly so numeric
+    floats such as 1.0 never depend on pandas' mixed-dtype coercion behavior.
+    """
+    if pd.isna(value):
+        return False
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    if isinstance(value, (int, float, np.integer, np.floating)):
+        try:
+            return float(value) == 1.0
+        except (TypeError, ValueError, OverflowError):
+            return False
+
+    token = str(value).strip().lower()
+    if token in {"true", "t", "yes", "y"}:
+        return True
+    if token in {"false", "f", "no", "n", "", "nan", "none", "null", "<na>"}:
+        return False
+    try:
+        return float(token) == 1.0
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+
 def _bool_series(s: pd.Series) -> pd.Series:
-    return s.astype("string").str.lower().isin(["true", "1", "t"])
+    """Normalize CSV numeric/string flags and native PostgreSQL bools."""
+    return s.map(_bool_value).astype(bool)
 
 
 def _compare_frames(name: str, python_df: pd.DataFrame, sql_df: pd.DataFrame,
