@@ -16,7 +16,7 @@ The analysis separates lead conversion, seller-ID linkage and post-win outcomes 
 |---|---|---|
 | Python analytics pipeline | Executed | Seller acquisition, maturity, linkage, activation, GMV, sensitivity and statistical analysis |
 | Local test suite | Passed | 19 passed, 1 skipped; PostgreSQL integration covered in CI |
-| PostgreSQL 16 CI (synthetic fixture) | Passed | Latest data-pipeline-ci run passed on commit 5995bef; pandas 2.2/3.0 matrix |
+| PostgreSQL 16 CI (synthetic fixture) | Passed | Latest data-pipeline-ci run passed on commit 089f46e; pandas 2.2/3.0 matrix |
 | CI version coverage | Passed in CI | Latest GitHub Actions run passed |
 | Excel validation workbook | Generated | `excel/olist_validation_workbook.xlsx` |
 | Native Excel PivotTable | Generated | `excel/Origin_Pivot.xlsx` |
@@ -138,7 +138,7 @@ The linked-only activation rates are also reweighted by a logistic linkage-prope
 * Install dependencies with `pip install -r requirements.txt`; direct dependency input is `requirements.in`.
 * `requirements.lock` remains an incomplete offline environment snapshot, not a canonical cross-platform lock. Generate a complete lock on an internet-connected machine before claiming reproducible locked installation.
 * Local tests: **19 passed, 1 skipped**. The skipped local test requires PostgreSQL.
-* GitHub Actions run `5995bef` passed PostgreSQL 16 integration and SQL/Python reconciliation on the committed synthetic fixture across pandas 2.2 and 3.0; this does not represent a full PostgreSQL reconciliation against the raw Olist CSVs.
+* GitHub Actions run `089f46e` passed PostgreSQL 16 integration and SQL/Python reconciliation on the committed synthetic fixture across pandas 2.2 and 3.0; this does not represent a full PostgreSQL reconciliation against the raw Olist CSVs.
 * The GitHub Pages deployment workflow passed. The live dashboard is available at https://rezinak2003-afk.github.io/olist-seller-acquisition-value/.
 
 ## Data sources and licence
@@ -217,5 +217,6 @@ The runner recreates `raw` and `mart` from the single DDL file, loads the four s
 * `powerbi/`: Power Query, DAX and Power BI build guide
 * `docs/`: methodology, KPI definitions, data dictionary and cleaning log
 * `reports/`: decision summary, findings, QA and charts
+
 
 

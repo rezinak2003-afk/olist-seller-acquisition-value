@@ -10,7 +10,7 @@
 | Conservative activation lower bound | 282 / 656 mature deals | 42.99% |
 | Maturity cutoff | Exclusive `data_end=2018-08-28`; minimum 50 purchases/day | Implemented in Python and SQL; sparse-tail leakage validation included |
 | Local tests | `python -m pytest -q` | 19 passed, 1 skipped; skipped test requires PostgreSQL configuration |
-| PostgreSQL CI | PostgreSQL 16; pandas 2.2 and 3.0 matrix; run on commit `5995bef` | Passed against the committed synthetic fixture; this is not full raw-Olist PostgreSQL reconciliation |
+| PostgreSQL CI | PostgreSQL 16; pandas 2.2 and 3.0 matrix; run on commit `089f46e` | Passed against the committed synthetic fixture; this is not full raw-Olist PostgreSQL reconciliation |
 | Statistical analysis | Fisher pairwise tests, Holm correction, Newcombe intervals, fixed-margin Monte Carlo omnibus tests | Generated; observational comparisons are not causal estimates |
 | Linkage diagnostics | Linkage dimensions, propensity model and capped stabilized IPW sensitivity | Generated; outcome-dependent linkage remains a material limitation |
 | GMV checks | `data/processed/gmv_and_payment_checks.csv` | All-status GMV R$336,683.90; delivered-only GMV R$330,080.56; difference R$6,603.34 |
@@ -51,3 +51,4 @@
 The Python analysis has been executed locally, the local test suite passes with one PostgreSQL-dependent skip, and PostgreSQL CI has passed against a synthetic fixture. The Excel PivotTable, Power BI PBIX, PDF export and GitHub Pages deployment have been created.
 
 The project still has material limitations around outcome-dependent seller linkage, unavailable payment reconciliation, full raw-data SQL parity and Power BI visual polish. Do not describe it as a fully verified 90+ deliverable or claim full raw-Olist PostgreSQL reconciliation until the outstanding evidence is produced.
+
