@@ -153,7 +153,7 @@ def main():
             "sql_acquisition_funnel.csv": query_frame(conn, "SELECT * FROM mart.acquisition_funnel ORDER BY origin"),
             "sql_seller_90d_value.csv": query_frame(conn, "SELECT * FROM mart.seller_90d_value ORDER BY mql_id"),
             "sql_channel_90d_summary.csv": query_frame(conn, "SELECT * FROM mart.channel_90d_summary ORDER BY origin"),
-            "sql_seller_first_sale.csv": query_frame(conn, "SELECT * FROM mart.seller_first_sale ORDER BY seller_id"),
+            
             "sql_cumulative_activation_by_day.csv": query_frame(conn, "SELECT * FROM mart.cumulative_activation_by_day ORDER BY origin,day_since_win"),
             "sql_reconciliation_source.csv": query_frame(conn, (ROOT/"sql"/"05_reconciliation.sql").read_text()),
         }

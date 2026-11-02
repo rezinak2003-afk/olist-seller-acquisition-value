@@ -40,6 +40,3 @@ SELECT
     SUM(qualified_leads) AS qualified_leads,
     SUM(closed_leads) AS closed_leads
 FROM mart.acquisition_funnel;
-SELECT *
-FROM mart.channel_90d_summary
-ORDER BY mature_sellers DESC;

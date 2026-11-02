@@ -1,0 +1,17 @@
+metric,value
+strict_activated_linked_mature_deals,258
+activated_linked_mature_deals,282
+linked_mature_deals,340
+strict_delivered_gmv_90d,262718.95
+delivered_gmv_90d,330080.56
+mature_deals,656
+close_days_n,841
+close_days_sum,40789
+data_end_epoch_seconds,1535414400.000000
+seller_mart_rows,842
+closed_deals,842
+qualified_leads,8000
+order_items,112650
+freight_sum,2251909.54
+item_price_sum,13591643.70
+orders,99441

@@ -1,0 +1,65 @@
+check,python_value,sql_value,absolute_difference,tolerance,status,detail
+seller_mart.mql_id.row_key_parity,842,842,0.0,0.0,PASS,Primary-key sequence and row count
+seller_mart.seller_id,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.origin,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.lead_type,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.business_segment,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.business_type,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.won_month,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.first_contact_date,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.won_date,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.close_days,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+seller_mart.window_start_inclusive,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.window_end_exclusive,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.data_end,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.mature_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.seller_linked_to_order_items,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.orders_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+seller_mart.delivered_orders_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+seller_mart.orders_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+seller_mart.items_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+seller_mart.activated_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.activated_90d_any_status,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.activated_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+seller_mart.gmv_90d_all_statuses,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+seller_mart.gmv_90d_delivered_only,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+seller_mart.gmv_90d_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+seller_mart.gmv_90d_non_delivered_proxy,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+seller_mart.freight_90d_all_statuses,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.origin.row_key_parity,11,11,0.0,0.0,PASS,Primary-key sequence and row count
+channel_summary.mature_seller_deals,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.linked_mature_seller_deals,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.unlinked_mature_seller_deals,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.marketplace_linkage_rate_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.activated_sellers_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.non_activated_linked_sellers_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.activation_rate_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.activation_ci_95_low_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.activation_ci_95_high_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.activated_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.0
+channel_summary.delivery_within_90d_rate_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.delivery_within_90d_ci_95_low_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.delivery_within_90d_ci_95_high_pct,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+channel_summary.median_gmv_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.mean_gmv_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.p90_gmv_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.total_gmv_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.total_gmv_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.mean_gmv_delivered_within_90d,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=0.01
+channel_summary.median_close_days_all_mature_deals,rowwise values,rowwise values,0.0,0.0,PASS,Row-level mismatches=0; tolerance=1e-06
+sql_05.strict_activated_linked_mature_deals,258.0,258.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.activated_linked_mature_deals,282.0,282.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.linked_mature_deals,340.0,340.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.strict_delivered_gmv_90d,262718.95,262718.95,0.0,0.01,PASS,SQL control total compared with raw source or Python mart
+sql_05.delivered_gmv_90d,330080.56,330080.56,0.0,0.01,PASS,SQL control total compared with raw source or Python mart
+sql_05.mature_deals,656.0,656.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.close_days_n,841.0,841.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.close_days_sum,40789.0,40789.0,0.0,0.01,PASS,SQL control total compared with raw source or Python mart
+sql_05.data_end_epoch_seconds,1535414400.0,1535414400.0,0.0,1e-06,PASS,SQL control total compared with raw source or Python mart
+sql_05.seller_mart_rows,842.0,842.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.closed_deals,842.0,842.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.qualified_leads,8000.0,8000.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.order_items,112650.0,112650.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
+sql_05.freight_sum,2251909.54,2251909.54,0.0,0.01,PASS,SQL control total compared with raw source or Python mart
+sql_05.item_price_sum,13591643.700000003,13591643.7,3.725290298461914e-09,0.01,PASS,SQL control total compared with raw source or Python mart
+sql_05.orders,99441.0,99441.0,0.0,0.0,PASS,SQL control total compared with raw source or Python mart
