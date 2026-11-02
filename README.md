@@ -237,6 +237,7 @@ python scripts/update\_readme\_results.py
 The pipeline writes the seller mart, acquisition funnel, validation checks, pairwise tests, linkage and IPW diagnostics, adjusted activation model, window sensitivity, cumulative activation curve, GMV concentration and payment reconciliation outputs under `data/processed/`. `docs/CLEANING\_LOG.md` records the corrections and exception counts.
 
 ## Execute PostgreSQL end to end
+**Latest full-data audit (2 November 2026):** PostgreSQL 16 execution completed successfully. All 64 SQL/Python reconciliation checks passed, including row-level seller mart parity, channel-summary parity and source control totals. The full-data audit used the local Olist source CSVs; GitHub Actions synthetic-fixture results are reported separately.
 
 With Docker Desktop or PostgreSQL 16 available:
 
