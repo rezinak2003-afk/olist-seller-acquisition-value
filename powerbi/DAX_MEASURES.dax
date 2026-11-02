@@ -159,3 +159,25 @@ Mature Seller Linkage Gap % = DIVIDE ( [Unlinked Mature Seller Deals], [Mature S
 
 -- The data_end column is a cohort boundary, not an order-date slicer. Use the
 -- validation_summary table to display the single run-level exclusive cutoff.
+
+
+-- Worst-case all-mature linkage bounds.
+-- These are identification bounds, not confidence intervals.
+All-Mature Activation Lower Bound % =
+DIVIDE ( [Selected Activated Sellers], [Mature Seller Deals] )
+
+All-Mature Activation Upper Bound % =
+DIVIDE (
+    [Selected Activated Sellers] + [Unlinked Mature Seller Deals],
+    [Mature Seller Deals]
+)
+
+Origin Linked Sample Label =
+FORMAT ( [Linked Mature Seller Deals], "0" )
+
+Origin Sample Size Flag =
+IF (
+    [Linked Mature Seller Deals] < 20,
+    "n<20 — insufficient",
+    "n>=20"
+)

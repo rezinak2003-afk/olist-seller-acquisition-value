@@ -1,0 +1,13 @@
+origin,mature_deals_n,linked_mature_deals_n,unlinked_mature_deals_n,observed_activated_linked_n,observed_linked_activation_pct,activation_lower_bound_pct,activation_upper_bound_pct,unlinked_share_pct,bound_type
+(missing),11,4,7,3,75.0,27.27272727272727,90.9090909090909,63.63636363636363,Worst-case Manski identification bounds; not confidence intervals
+direct_traffic,49,28,21,22,78.57142857142857,44.89795918367347,87.75510204081633,42.857142857142854,Worst-case Manski identification bounds; not confidence intervals
+display,6,2,4,1,50.0,16.666666666666664,83.33333333333334,66.66666666666667,Worst-case Manski identification bounds; not confidence intervals
+email,12,6,6,5,83.33333333333334,41.66666666666667,91.66666666666666,50.0,Worst-case Manski identification bounds; not confidence intervals
+organic_search,204,103,101,80,77.66990291262135,39.21568627450981,88.72549019607843,49.509803921568626,Worst-case Manski identification bounds; not confidence intervals
+other,4,2,2,1,50.0,25.0,75.0,50.0,Worst-case Manski identification bounds; not confidence intervals
+other_publicities,3,0,3,0,,0.0,100.0,100.0,Worst-case Manski identification bounds; not confidence intervals
+paid_search,144,87,57,79,90.80459770114942,54.861111111111114,94.44444444444444,39.583333333333336,Worst-case Manski identification bounds; not confidence intervals
+referral,18,9,9,8,88.88888888888889,44.44444444444444,94.44444444444444,50.0,Worst-case Manski identification bounds; not confidence intervals
+social,55,26,29,24,92.3076923076923,43.63636363636363,96.36363636363636,52.72727272727273,Worst-case Manski identification bounds; not confidence intervals
+unknown,150,73,77,59,80.82191780821918,39.33333333333333,90.66666666666666,51.333333333333336,Worst-case Manski identification bounds; not confidence intervals
+ALL_ORIGINS,656,340,316,282,82.94117647058825,42.98780487804878,91.15853658536585,48.170731707317074,Worst-case Manski identification bounds; not confidence intervals

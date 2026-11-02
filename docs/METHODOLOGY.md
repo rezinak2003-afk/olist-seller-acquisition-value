@@ -25,7 +25,7 @@
 - Five-origin omnibus comparisons use a fixed-margin Monte Carlo Pearson chi-square test. The minimum expected cell count is recorded; the Monte Carlo method avoids relying on an asymptotic chi-square approximation when expected counts are below five.
 - The primary planned origin comparison is paid search versus organic search. The remaining eligible origin pairs are exploratory.
 - Mean and median GMV uncertainty uses 5,000 percentile-bootstrap resamples with seed 42.
-- Activation logistic regression adjusts for origin, lead type, business segment, business type and win month. Rare category levels with fewer than 20 observations are pooled; odds ratios and robust 95% CIs are reported. This is an adjusted association, not a causal effect.
+- The activation model is a reduced L2-penalized binomial GLM using origin and lead type only. Category levels with fewer than 20 observations are pooled. The model uses alpha=0.05 and reports odds ratios, approximate penalized-Hessian intervals, events, non-events and events-per-slope-parameter. Penalized coefficients do not receive conventional Wald p-values; group inference is reported separately using Fisher tests with Holm correction. With 58 non-events and 10 slope parameters (EPV=5.8), it remains exploratory, not a stable causal or predictive model.
 - Linkage selection is modelled as `linked ~ origin + lead_type + business_segment + won_month`. Stabilized inverse-probability weights are capped at the 99th percentile. The IPW result is a sensitivity analysis; it cannot identify unobserved outcomes for unlinked sellers.
 - GMV distribution across sufficiently sized origin groups is compared with Kruskal-Wallis H and epsilon-squared. This is descriptive and observational.
 
@@ -34,3 +34,18 @@
 - The delivered-status exception counts are recorded, not silently imputed: delivered orders with no customer-delivery date and non-delivered orders with a customer-delivery date.
 - Reconcile every seller-mart and channel-summary column plus `close_days` aggregates and the control totals in `05_reconciliation.sql` against Python outputs. The PostgreSQL runner writes `sql_python_reconciliation.csv` and exits non-zero if any row is not PASS.
 - The raw CSVs are sourced from Kaggle under CC BY-NC-SA 4.0. Keep them out of Git; record their hashes and cite Olist. Check source conditions before redistributing data or using the materials commercially.
+
+
+## Outcome-dependent seller linkage: bounds and timing
+
+- A seller deal is marked linked when its `seller_id` appears in any observed `order_items` row. This definition is not restricted to the 90-day post-win window; therefore, linkage can depend on marketplace activity after the primary outcome window.
+- For the 656 mature deals, 340 are linked and 316 are unlinked. Observed purchase-window activation among linked sellers is 282/340 = 82.94%.
+- Worst-case (Manski-style) all-mature identification bounds use observed activations as the lower endpoint and assume every unlinked seller did not activate; the upper endpoint assumes every unlinked seller activated: `282/656 = 42.99%` to `(282 + 316)/656 = 91.16%`. These are identification bounds, not confidence intervals or point estimates. The same calculations are produced by origin.
+- Paid/organic tipping-point scenarios vary unknown activation rates among unlinked sellers under explicit assumptions. With organic unlinked sellers held at the organic linked-cohort rate, paid unlinked activation of 57.62% equalizes the paid all-mature rate with that observed organic benchmark. Holding paid unlinked sellers at the paid linked-cohort rate would require 104.20% organic activation; a common unlinked rate would need 157.61%. The latter two are infeasible. These are sensitivity scenarios, not inferred rates.
+- First-sale timing uses the earliest observed order-item purchase per linked seller. Of 340 linked mature sellers, 284 (83.53%) first sold within 90 days of `won_date`, while 56 (16.47%) first sold after day 90 but before the exclusive data cutoff. Thus, the link flag includes sellers whose first observed sale occurs after the measured outcome window.
+- Time-to-first-sale uses the full mature cohort. A first observed post-win order before `data_end` is an event; sellers with no observed order before `data_end` are mechanically right-censored at `data_end - won_date`. Standard Kaplan–Meier interpretation requires independent/non-informative censoring. That assumption is doubtful here because all 316 no-event sellers are also unlinked under the outcome-dependent order-item linkage definition. The 127.6-day median and 69.0-day 90-day restricted mean are therefore assumption-dependent exploratory diagnostics, not population estimates. Pre-win activity is reported separately; none was observed in this mature cohort.
+- Unknown-origin GMV share is the ratio of unknown-origin sellers' delivered item-price GMV to total delivered item-price GMV among linked mature sellers. Its uncertainty is estimated with 5,000 seller-level bootstrap resamples (seed 42); the interval is wide and is descriptive, not causal attribution.
+
+## Sensitivity outputs
+
+`maturity_sensitivity.csv` includes mature, linked and unlinked counts; linked-cohort activation; worst-case all-mature bounds; strict activation; and delivered GMV/median for 10, 50 and 100 purchases/day. Delivery-date anomaly impact is separately quantified in `delivery_date_anomaly_impact.csv`.

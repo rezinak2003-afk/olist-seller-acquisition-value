@@ -31,41 +31,85 @@ def conversion_by_dimension(deal_leads: pd.DataFrame, leads: pd.DataFrame,
 
 
 def activation_logistic_regression(linked_mature: pd.DataFrame) -> pd.DataFrame:
-    """Adjusted odds ratios with robust 95% CIs for purchase-window activation."""
-    cols = ["activated_90d", "origin", "lead_type", "business_segment", "business_type", "won_month"]
+    """Parsimonious ridge-logistic sensitivity model with approximate Wald CIs.
+
+    Only origin and lead_type are retained. Rare levels (<20) are pooled. The
+    L2 penalty reduces separation and coefficient explosion; events-per-slope
+    parameter is reported so readers can judge residual small-sample limits.
+    This is adjusted association, not a causal effect.
+    """
+    from scipy.special import expit
+    from scipy.stats import norm
+
+    cols = ["activated_90d", "origin", "lead_type"]
     d = linked_mature.copy()
     for c in cols:
         if c not in d:
             d[c] = "(missing)"
-    d = d[cols].dropna(subset=["activated_90d"])
+    d = d[cols].dropna(subset=["activated_90d"]).copy()
     if d.empty or d.activated_90d.nunique() < 2:
-        return pd.DataFrame([{"term":"(model)", "odds_ratio":np.nan, "ci_95_low":np.nan,
-                              "ci_95_high":np.nan, "p_value":np.nan,
-                              "status":"Not fit: outcome has fewer than two classes"}])
-    for c in ["origin", "lead_type", "business_segment", "business_type", "won_month"]:
+        return pd.DataFrame([{"term": "(model)", "odds_ratio": np.nan,
+                              "ci_95_low": np.nan, "ci_95_high": np.nan,
+                              "p_value": np.nan,
+                              "status": "Not fit: outcome has fewer than two classes"}])
+    for c in ["origin", "lead_type"]:
         d[c] = d[c].astype("string").fillna("(missing)").replace("", "(missing)").astype(str)
         counts = d[c].value_counts(dropna=False)
         d[c] = d[c].where(d[c].map(counts).ge(20), "(pooled: n<20)")
     d["activated_90d"] = d["activated_90d"].astype(int)
-    formula = "activated_90d ~ C(origin) + C(lead_type) + C(business_segment) + C(business_type) + C(won_month)"
+    formula = "activated_90d ~ C(origin) + C(lead_type)"
+    # Use a lighter penalty than the previous alpha=0.5 specification.
+    # Coefficients and penalized-Hessian intervals remain exploratory; do not
+    # attach conventional Wald p-values to penalized estimates.
+    alpha = 0.05
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            fit = smf.glm(formula, data=d, family=sm.families.Binomial()).fit(cov_type="HC0", maxiter=200)
-        ci = fit.conf_int()
+            model = smf.glm(formula, data=d, family=sm.families.Binomial())
+            fit = model.fit_regularized(alpha=alpha, L1_wt=0.0, maxiter=2000, cnvrg_tol=1e-10)
+        x = np.asarray(model.exog, dtype=float)
+        beta = np.asarray(fit.params, dtype=float)
+        mu = expit(np.clip(x @ beta, -30, 30))
+        weights = mu * (1 - mu)
+        penalty = np.eye(x.shape[1], dtype=float) * alpha
+        penalty[0, 0] = 0.0  # retain an unpenalized intercept
+        covariance = np.linalg.pinv(x.T @ (weights[:, None] * x) + penalty)
+        standard_errors = np.sqrt(np.maximum(0.0, np.diag(covariance)))
+        z = norm.ppf(0.975)
+        events = int(d["activated_90d"].sum())
+        non_events = int(len(d) - events)
+        slope_parameters = max(1, x.shape[1] - 1)
+        epv = min(events, non_events) / slope_parameters
+        model_status = (
+            "Fit: L2-penalized binomial GLM (alpha=0.05), origin + lead_type only; "
+            "rare levels pooled at n<20; approximate penalized-Hessian intervals, "
+            "not frequentist confidence intervals; p-values intentionally omitted. "
+            + ("Low EPV; exploratory only." if epv < 10 else "")
+        )
         rows = []
-        for term, coef in fit.params.items():
-            rows.append({"term":term, "odds_ratio":float(np.exp(coef)),
-                         "ci_95_low":float(np.exp(ci.loc[term, 0])),
-                         "ci_95_high":float(np.exp(ci.loc[term, 1])),
-                         "p_value":float(fit.pvalues[term]), "n":int(fit.nobs),
-                         "status":"Fit: binomial GLM with HC0 robust covariance",
-                         "reference_levels":"Statsmodels treatment coding; first sorted category per factor"})
+        for idx, term in enumerate(model.exog_names):
+            coef = float(beta[idx])
+            se = float(standard_errors[idx])
+            rows.append({
+                "term": term,
+                "odds_ratio": float(np.exp(np.clip(coef, -30, 30))),
+                "ci_95_low": float(np.exp(np.clip(coef - z * se, -30, 30))),
+                "ci_95_high": float(np.exp(np.clip(coef + z * se, -30, 30))),
+                "p_value": np.nan,
+                "inference_note": "Not reported for L2-penalized coefficients; use Fisher/Holm tests for group comparisons",
+                "n": int(len(d)), "events": events, "non_events": non_events,
+                "slope_parameters": slope_parameters, "events_per_parameter": epv,
+                "regularization_alpha": alpha,
+                "status": model_status,
+                "reference_levels": "Statsmodels treatment coding; first sorted category per factor",
+                "formula": formula,
+            })
         return pd.DataFrame(rows)
     except Exception as exc:
-        return pd.DataFrame([{"term":"(model)", "odds_ratio":np.nan, "ci_95_low":np.nan,
-                              "ci_95_high":np.nan, "p_value":np.nan, "n":len(d),
-                              "status":f"Not fit: {type(exc).__name__}: {exc}"}])
+        return pd.DataFrame([{"term": "(model)", "odds_ratio": np.nan,
+                              "ci_95_low": np.nan, "ci_95_high": np.nan,
+                              "p_value": np.nan, "n": len(d),
+                              "status": f"Not fit: {type(exc).__name__}: {exc}"}])
 
 
 def window_sensitivity(deal_leads: pd.DataFrame, item_orders: pd.DataFrame,

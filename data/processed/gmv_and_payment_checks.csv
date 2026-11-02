@@ -2,5 +2,6 @@ check,value,detail
 purchase_window_gmv_all_statuses_brl,336683.9,Linked mature sellers; item price; all order statuses
 purchase_window_gmv_delivered_only_brl,330080.56,Linked mature sellers; delivered status only
 all_status_vs_delivered_gap_brl,6603.340000000026,All-status item price minus delivered-status item price
-payment_vs_item_price_plus_freight_within_R$1_pct,,Not calculated: supplementary payments CSV was not found
-payment_vs_item_price_plus_freight_within_R$0.01_pct,,Not calculated: supplementary payments CSV was not found
+payment_vs_item_price_plus_freight_within_R$1_pct,99.7476308721431,98416/98665 orders within R$1.00; only orders with both item and payment totals
+payment_vs_item_price_plus_freight_within_R$0.01_pct,99.61384482845995,98284/98665 orders within R$0.01; only orders with both item and payment totals
+payment_reconciliation_comparable_orders,98665.0,"Orders with non-null item, freight and payment totals"

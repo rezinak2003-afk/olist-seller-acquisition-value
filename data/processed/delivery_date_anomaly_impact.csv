@@ -1,0 +1,3 @@
+anomaly_type,source_order_count,orders_with_item_rows,distinct_item_seller_ids,mature_deal_sellers_affected,mature_seller_deal_rows_affected,primary_activation_policy
+delivered_status_missing_customer_delivery_date,8,8,7,1,1,Primary activation follows purchase-window order_status='delivered'; delivery-date strict metric is reported separately. No timestamps are imputed.
+non_delivered_status_has_customer_delivery_date,6,6,5,0,0,Primary activation follows purchase-window order_status='delivered'; delivery-date strict metric is reported separately. No timestamps are imputed.

@@ -1,4 +1,4 @@
-min_orders_per_day,data_end_exclusive,mature_90d_deals,rule
-10,2018-08-30,665,day after latest calendar date with at least threshold order purchases
-50,2018-08-28,656,day after latest calendar date with at least threshold order purchases
-100,2018-08-24,654,day after latest calendar date with at least threshold order purchases
+min_orders_per_day,data_end_exclusive,mature_90d_deals,linked_mature_90d_deals,unlinked_mature_90d_deals,activated_linked_mature_deals,activation_rate_linked_pct,activation_lower_bound_all_mature_pct,activation_upper_bound_all_mature_pct,strict_activation_linked_pct,delivered_gmv_linked_mature_brl,median_delivered_gmv_linked_mature_brl,rule
+10,2018-08-30,665,345,320,287,83.18840579710145,43.1578947368421,91.2781954887218,76.23188405797102,333698.64999999997,216.8,day after latest calendar date with at least threshold order purchases; linked-cohort rate and worst-case all-mature bounds reported
+50,2018-08-28,656,340,316,282,82.94117647058823,42.98780487804878,91.15853658536585,75.88235294117646,330080.56,215.7,day after latest calendar date with at least threshold order purchases; linked-cohort rate and worst-case all-mature bounds reported
+100,2018-08-24,654,340,314,282,82.94117647058823,43.11926605504587,91.13149847094802,75.88235294117646,330080.56,215.7,day after latest calendar date with at least threshold order purchases; linked-cohort rate and worst-case all-mature bounds reported

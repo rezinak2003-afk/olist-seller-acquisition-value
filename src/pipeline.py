@@ -9,6 +9,9 @@ from .config import (ROOT, RAW_DIR, REFERENCE_DIR, OUT_DIR, FILES, WINDOW_DAYS,
 from .workbook import build_workbook
 from .statistics import wilson_interval, bootstrap_stat_ci, channel_omnibus_tests
 from .linkage import build_linkage_diagnostics
+from .sensitivity import (activation_bounds_by_origin, paid_organic_tipping_point,
+                          linkage_first_sale_timing, time_to_first_sale_by_origin,
+                          delivery_date_anomaly_impact, unknown_origin_gmv_bootstrap)
 from .analytics import (conversion_by_dimension, activation_logistic_regression,
                         window_sensitivity, cumulative_activation_by_day,
                         gmv_concentration, status_and_payment_checks)
@@ -202,16 +205,35 @@ def build_channel_summary(seller_value: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("mature_seller_deals", ascending=False).reset_index(drop=True)
 
 
-def _write_sensitivity(orders: pd.DataFrame, seller_deals: pd.DataFrame, out: Path):
+def _write_sensitivity(orders: pd.DataFrame, seller_deals: pd.DataFrame,
+                       item_orders: pd.DataFrame, out: Path):
+    """Recompute maturity, activation and delivered GMV at each cutoff rule."""
     rows = []
     for threshold in MATURITY_SENSITIVITY_THRESHOLDS:
         end = calculate_data_end(orders, threshold)
-        eligible = seller_deals.dropna(subset=["seller_id", "won_date"])
-        n = int((eligible.won_date + pd.Timedelta(days=WINDOW_DAYS) <= end).sum()) if pd.notna(end) else 0
-        rows.append({"min_orders_per_day": threshold, "data_end_exclusive": end,
-                     "mature_90d_deals": n,
-                     "rule":"day after latest calendar date with at least threshold order purchases"})
-    pd.DataFrame(rows).to_csv(out/"maturity_sensitivity.csv", index=False)
+        threshold_mart = build_seller_value(seller_deals, item_orders, end)
+        mature = threshold_mart.loc[threshold_mart["mature_90d"].astype(bool)].copy()
+        linked = mature.loc[mature["seller_linked_to_order_items"].astype(bool)].copy()
+        n_all, n_linked = int(len(mature)), int(len(linked))
+        n_unlinked = n_all - n_linked
+        activated = int(pd.to_numeric(linked["activated_90d"], errors="coerce").fillna(0).sum())
+        strict_activated = int(pd.to_numeric(linked["activated_delivered_within_90d"], errors="coerce").fillna(0).sum())
+        delivered_gmv = float(pd.to_numeric(linked["gmv_90d_delivered_only"], errors="coerce").fillna(0).sum())
+        rows.append({
+            "min_orders_per_day": threshold, "data_end_exclusive": end,
+            "mature_90d_deals": n_all,
+            "linked_mature_90d_deals": n_linked,
+            "unlinked_mature_90d_deals": n_unlinked,
+            "activated_linked_mature_deals": activated,
+            "activation_rate_linked_pct": 100 * activated / n_linked if n_linked else np.nan,
+            "activation_lower_bound_all_mature_pct": 100 * activated / n_all if n_all else np.nan,
+            "activation_upper_bound_all_mature_pct": 100 * (activated + n_unlinked) / n_all if n_all else np.nan,
+            "strict_activation_linked_pct": 100 * strict_activated / n_linked if n_linked else np.nan,
+            "delivered_gmv_linked_mature_brl": delivered_gmv,
+            "median_delivered_gmv_linked_mature_brl": float(linked["gmv_90d_delivered_only"].median()) if n_linked else np.nan,
+            "rule": "day after latest calendar date with at least threshold order purchases; linked-cohort rate and worst-case all-mature bounds reported",
+        })
+    pd.DataFrame(rows).to_csv(out / "maturity_sensitivity.csv", index=False)
 
 
 def run() -> None:
@@ -269,10 +291,21 @@ def run() -> None:
     seller_value.to_csv(OUT_DIR/"seller_90d_value.csv", index=False)
     channel = build_channel_summary(seller_value)
     channel.to_csv(OUT_DIR/"channel_90d_summary.csv", index=False)
-    _write_sensitivity(orders, deal_leads, OUT_DIR)
+    _write_sensitivity(orders, deal_leads, item_orders, OUT_DIR)
 
     mature = seller_value.loc[seller_value["mature_90d"].astype(bool)].copy()
     linked_mature = mature.loc[mature["seller_linked_to_order_items"].astype(bool)].copy()
+    bounds = activation_bounds_by_origin(mature)
+    bounds.to_csv(OUT_DIR / "activation_bounds_by_origin.csv", index=False)
+    paid_organic_tipping_point(bounds).to_csv(OUT_DIR / "paid_organic_tipping_point.csv", index=False)
+    linkage_first_sale_timing(mature, item_orders, data_end).to_csv(
+        OUT_DIR / "linkage_first_sale_timing.csv", index=False)
+    time_to_first_sale_by_origin(mature, item_orders, data_end).to_csv(
+        OUT_DIR / "time_to_first_sale_by_origin.csv", index=False)
+    delivery_date_anomaly_impact(mature, orders, items).to_csv(
+        OUT_DIR / "delivery_date_anomaly_impact.csv", index=False)
+    unknown_origin_gmv_bootstrap(linked_mature, reps=5000, seed=42).to_csv(
+        OUT_DIR / "unknown_origin_gmv_bootstrap.csv", index=False)
     stat_rows = []
     for metric, values in [
         ("purchase_window_delivered_activation", linked_mature["activated_90d"]),

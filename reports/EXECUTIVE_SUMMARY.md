@@ -1,26 +1,42 @@
 # Executive decision brief — Olist seller acquisition
 
 ## Decision
-**Do not shift acquisition budget toward paid search based on this snapshot.** Run a controlled holdout or a pre-registered paid-search versus organic-search experiment, and instrument spend and seller identity before using activation to allocate budget.
+**Do not reallocate acquisition budget based on this observational snapshot.** Paid search has a higher observed purchase-window activation rate than organic search among linked mature sellers, but Holm-adjusted evidence does not clear the family-wise 5% threshold and seller linkage is outcome-dependent. Run a controlled holdout or pre-registered paid-search versus organic-search experiment after spend and seller identity instrumentation are available.
 
-## One decision number
-Paid-search purchase-window activation was **90.8% (79/87)** versus **77.7% (80/103)** for organic search: a **+13.1 percentage-point** observed difference (Newcombe 95% CI **+2.6 to +23.1 pp**). The unadjusted Fisher exact p-value is **0.0177**, but the all-pairs Holm-adjusted p-value is **0.1773**. The primary comparison therefore does not clear the family-wise 5% threshold. It is an observational cohort difference, not an estimated causal effect.
+## Channel comparison — linked cohort only
+Paid-search activation is **90.80% (79/87)** versus **77.67% (80/103)** for organic search: an observed difference of **+13.13 percentage points** (Newcombe 95% CI **+2.59 to +23.14 pp**). The unadjusted Fisher exact p-value is **0.0177**, while the all-pairs Holm-adjusted p-value is **0.1773**. This is an observational comparison among linked sellers, not an estimated causal effect or evidence for a budget shift.
 
-## One material risk
-Only **340 of 656 mature deals (51.8%)** link to seller transaction rows. The other **316** have unknown marketplace outcomes and stay NULL, not zero. Linkage rates vary by origin and deal attributes; propensity weighting is a useful sensitivity check but cannot recover outcomes for sellers who remain unlinked.
+## Linkage changes the interpretation
+Only **340 of 656 mature deals (51.83%)** link to order-item seller IDs; **316 outcomes are unobserved**, not zero. The linked-cohort activation rate is **282/340 = 82.94%**. Across all 656 mature deals, worst-case identification bounds are **42.99%–91.16%**:
+- Lower endpoint: assume every unlinked seller did not activate (282/656).
+- Upper endpoint: assume every unlinked seller activated ((282+316)/656).
+These are identification bounds, not confidence intervals or an estimated population rate.
 
-## Observation rule and current cohort
-Maturity uses an exclusive `data_end` equal to the day after the last calendar day with at least 50 purchases. The last qualifying day is 27 August 2018; `data_end` is **28 August 2018 00:00**. The resulting mature cohort is 656 deals. Among the 340 linked mature sellers, observed purchase-window activation is 282/340 (**82.9%**, Wilson 95% CI 78.6%–86.6%); 282/656 (**43.0%**) is a conservative lower bound using all mature deals as denominator, not an estimate of true activation. Strict delivered-within-90-day activation is 258/340 (**75.9%**, Wilson 95% CI 71.1%–80.1%).
+The linkage indicator is based on seller appearance in order items at any observed date, not solely within the first 90 post-win days. Among the 340 linked mature sellers, **284 (83.53%)** first sold within 90 days, while **56 (16.47%)** first sold after day 90 but before the exclusive data cutoff. This is direct evidence that some sellers enter the linked cohort through post-window activity.
 
-## Required data before budget decisions
+## Tipping-point interpretation
+The observed linked-cohort paid-minus-organic gap is +13.13 pp. Under the scenario that organic unlinked sellers are held at organic's observed linked rate, paid unlinked activation of **57.62%** would equalize paid's all-mature rate with that observed organic benchmark. Under the reverse scenario, organic unlinked activation would need to be **104.20%**; a common unlinked activation rate in both origins would need to be **157.61%**. Those last two scenarios are infeasible. These are assumption-specific sensitivity scenarios, not estimates of the unknown outcomes.
+
+## Time to first observed sale
+A mechanically calculated Kaplan–Meier diagnostic gives a 127.6-day median and 69.0-day restricted mean event-free time through day 90. **Do not interpret these as population estimates:** all 316 right-censored observations are also unlinked sellers, and linkage is defined by any observed order-item appearance. Independent/non-informative censoring is therefore doubtful; the figures are assumption-dependent and exploratory only.
+
+## GMV and unknown attribution
+Linked mature sellers contributed **R$330,080.56** in delivered item-price GMV. The top 10 sellers account for **48.43%** of that total; the Gini coefficient is **0.793**. Sellers with `unknown` origin account for **R$122,608.14 from 73 sellers (37.14%)**, with a seller-bootstrap 95% interval of **12.27%–60.43%**. The wide interval and concentrated GMV make attribution completeness a high-priority data-quality issue.
+
+Payment reconciliation was calculated on **98,665 comparable orders**: **99.75%** are within R$1.00 and **99.61%** within R$0.01 of item price plus freight. These are tolerance-based checks, not exact reconciliation.
+
+## What would change the conclusion
+A validated seller-ID crosswalk that reduces outcome-dependent linkage, campaign spend and attribution data, and a randomized or well-designed quasi-experimental comparison could change the channel decision. The paid/organic result should also be revisited if plausible unlinked activation rates fall outside the sensitivity assumptions shown in `paid_organic_tipping_point.csv`.
+
+## Required inputs before budget decisions
 1. **Spend by origin and time period:** actual media costs, campaign IDs and attribution rules to estimate CAC/ROI.
 2. **Seller identity crosswalk:** a validated seller-ID bridge between the marketing funnel and marketplace transactions, with unmatched/error rates.
 3. **Seller registration / go-live date:** distinguish seller onboarding and catalog publication from first marketplace order; `won_date` is only the funnel close date.
 
-## Interpretation guardrails
-- The 50-orders/day maturity cutoff is a modelling rule; see 10/50/100 thresholds in `maturity_sensitivity.csv`.
-- The paid/organic comparison is selected on successful seller linkage and is not randomized. Holm correction covers all eligible origin pairs.
-- Delivered item-price GMV is not profit, recognized revenue, CAC or ROI. The linked mature cohort's total delivered item-price GMV is R$330,080.56; the top 10 sellers account for 48.4%, and the Gini coefficient is 0.793.
+## Observation rule
+Maturity uses an exclusive `data_end` equal to the day after the last calendar day with at least 50 purchases. The last qualifying day is 27 August 2018; `data_end` is **28 August 2018 00:00**. The primary mature cohort is 656 deals. Strict delivered-within-90-day activation is **258/340 = 75.88%** (Wilson 95% CI 71.06%–80.12%).
 
-## Next step
-Run the paid/organic holdout only after spend and identity instrumentation are available; pre-specify the primary outcome, observation window and sample size. Until then, treat the channel ranking as a hypothesis for testing, not a budget recommendation.
+## Interpretation guardrails
+- The 50-orders/day cutoff is a modelling rule; `maturity_sensitivity.csv` shows 10/50/100 alternatives with activation and GMV.
+- Groups with fewer than 20 linked deals are insufficient for stable origin-level interpretation.
+- Delivered GMV is item price in BRL, not profit, recognized revenue, CAC or ROI. No spend data or randomized assignment is supplied.

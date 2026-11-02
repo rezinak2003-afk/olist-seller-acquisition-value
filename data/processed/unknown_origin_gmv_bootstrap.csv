@@ -1,0 +1,2 @@
+n_sellers,unknown_origin_sellers,total_delivered_gmv_brl,unknown_origin_delivered_gmv_brl,estimate_pct,ci_95_low_pct,ci_95_high_pct,method
+340,73,330080.56,122608.13999999998,37.14491395676255,12.27242644593907,60.43294824064366,"Seller-level nonparametric percentile bootstrap; 5,000 resamples; seed=42; ratio of unknown-origin GMV to total GMV"
